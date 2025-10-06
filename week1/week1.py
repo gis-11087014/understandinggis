@@ -3,9 +3,20 @@ little_bitch_variable = "cunt"
 the_perfect_variable = big_fat_variable + little_bitch_variable
 print (the_perfect_variable)
 
-from geopandas import read_file
 
-world = read_file("../../data/natural-earth/ne_50m_admin_0_countries.shp")
+from geopandas import read_file #used to get into a GeoDataFrame, makes functionality from libraries, no import first means code will have no idea.
 
-print(world.head())
+world = read_file("../../data/natural-earth/ne_50m_admin_0_countries.shp") #imported from geopandas library, new variable called world
 
+print(world.head()) #convinience function that returns the first 5 rows of the dataset aka the head. therefore prints head 
+
+from matplotlib.pyplot import subplots, savefig
+# create map axis object
+my_fig, my_ax = subplots(1, 1, figsize=(16, 10))
+
+# plot the countries onto ax
+world.plot(ax = my_ax)
+
+# save the result
+savefig('week1/out/1.png')
+print("done!")
