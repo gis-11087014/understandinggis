@@ -7,6 +7,7 @@ print (the_perfect_variable)
 from geopandas import read_file #used to get into a GeoDataFrame, makes functionality from libraries, no import first means code will have no idea.
 
 world = read_file("../../data/natural-earth/ne_50m_admin_0_countries.shp") #imported from geopandas library, new variable called world
+print(world.columns)
 graticule = read_file("../../data/natural-earth/ne_110m_graticules_15.shp")
 bbox = read_file("../../data/natural-earth/ne_110m_wgs84_bounding_box.shp")
 
@@ -19,14 +20,14 @@ my_fig, my_ax = subplots(1, 1, figsize=(16, 10))
 # add bounding box and graticule layers
 bbox.plot(
     ax = my_ax,
-    color = 'lightgray',
+    color = 'skyblue',
     linewidth = 0,
     )
 
 # plot the countries
 world.plot(
     ax = my_ax,
-    color = 'black',
+    color = 'darkgreen',
     linewidth = 0.5,
     )
 
