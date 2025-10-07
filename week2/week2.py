@@ -28,7 +28,7 @@ for i in range(3):
 numbers = [1,2,3,4,5,6,7,8,9,10,15,30]
 
 # this variable will hold your result, start it at 0
-total = 565658469857
+total = 0
 
 # MISSING LINE HERE
 # loop through the list
@@ -37,7 +37,7 @@ for m in numbers:
     
 	# INCOMPLETE LINE HERE
 	# add each number to the total
-    # += shorthand for add to the exsisting total, so it adds all the things in m to the total
+    # += shorthand for add to the exsisting total (defined as 0), so it adds all the things in m to the total
 	total += m
 
 # print the result
