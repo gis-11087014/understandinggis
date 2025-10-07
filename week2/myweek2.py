@@ -6,6 +6,7 @@ Created on Tue Oct  7 12:47:55 2025
 """
 #geopandas uses the object GeoDataFrame to hold the data and the geometry in the dataset
 from geopandas import read_file, GeoSeries
+from matplotlib.pyplot import subplots, savefig, title
 
 # load the shapefile of countries - this gives a table of 12 columns and 246 rows (one per country)
 world = read_file("../../data/natural-earth/ne_10m_admin_0_countries.shp")
@@ -57,3 +58,17 @@ print(type(mex_geom))
 border = usa_geom.intersection(mex_geom)
 
 print(border)
+
+# create map axis object
+my_fig, my_ax = subplots(1, 1, figsize=(16, 10))
+
+# remove axes
+my_ax.axis('off')
+
+# plot the border
+GeoSeries(border).plot(
+  ax = my_ax
+	)
+
+# save the image
+savefig('./out/first-border.png')
