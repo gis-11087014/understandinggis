@@ -7,6 +7,8 @@ print(my_list)
 list.reverse(my_list)
 print(my_list)
 
+print(len(my_list))
+
 #create a variable that holds a list of three words
 words = ['First', 'Second', 'Third']
 #print each of those words in turn 
@@ -31,7 +33,7 @@ total = 0
 # MISSING LINE HERE
 # loop through the list
 for i in range(len(numbers)):
-
+    
 	# INCOMPLETE LINE HERE
 	# add each number to the total
 	total += numbers[i]
