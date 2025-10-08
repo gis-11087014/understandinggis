@@ -8,6 +8,9 @@ Created on Tue Oct  7 12:47:55 2025
 from geopandas import read_file, GeoSeries
 from matplotlib.pyplot import subplots, savefig, title
 from pyproj import Geod
+from matplotlib_scalebar.scalebar import ScaleBar
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 
 # load the shapefile of countries - this gives a table of 12 columns and 246 rows (one per country)
 world = read_file("../../data/natural-earth/ne_10m_admin_0_countries.shp")
@@ -136,6 +139,9 @@ my_ax.axis('off')
 title(f"Trump's wall would have been {cumulative_length / 1000:.2f} km long.")
 
 # project border
+#NOTE - we had to transform all datasets into Lamber Conformal Conic projection using the .to_crs() fucntion of the GDF GeoSeries order 
+#set GeoSeries using constructor into the same thing as CRS usign world dataset before transforming
+
 border_series = GeoSeries(border, crs=world.crs).to_crs(lambert_conic)
 
 # extract the bounds from the (projected) GeoSeries Object
@@ -145,6 +151,13 @@ minx, miny, maxx, maxy = border_series.geometry.iloc[0].bounds
 buffer = 10000
 my_ax.set_xlim([minx - buffer, maxx + buffer])
 my_ax.set_ylim([miny - buffer, maxy + buffer])
+
+#the 2 secotions of code exaplined here:
+#this is setting the bounds of the output map to match the border later otherwise it owuld  be a map of thew whole world 
+#the first line is usign a variable expanison - .bounds returns a list of 4 values [maxy etc.] 
+#this is python expanding into 4 variables for us
+#easier than sotrign as single variables in diffeent parts but more confusin 
+#a 10km buffer is added to the bounds to stop it toucheing the edge of the map - more pretty looking 
 
 # plot data
 usa.to_crs(lambert_conic).plot(
@@ -169,6 +182,26 @@ graticule.to_crs(lambert_conic).plot(
     color='grey',
     linewidth = 1,
     )
+
+#had to remove border creating code so we could make this new map 
+
+# add north arrow
+x, y, arrow_length = 0.98, 0.99, 0.1
+my_ax.annotate('N', xy=(x, y), xytext=(x, y-arrow_length),
+	arrowprops=dict(facecolor='black', width=5, headwidth=15),
+	ha='center', va='center', fontsize=20, xycoords=my_ax.transAxes)
+
+# add scalebar
+my_ax.add_artist(ScaleBar(dx=1, units="m", location="lower left", length_fraction=0.25))
+
+#to add a legend the constction details are in the mapplotlib legend documentation, guide and this tut (among others) 
+
+# add legend
+my_ax.legend(handles=[
+        Patch(facecolor='#ccebc5', edgecolor='#4daf4a', label='USA'),
+        Patch(facecolor='#fed9a6', edgecolor='#ff7f00', label='Mexico'),
+        Line2D([0], [0], color='#984ea3',  lw=0.6, label='Border')
+    ],loc='lower right')
 
 # save the result
 savefig('out/2.png', bbox_inches='tight')
