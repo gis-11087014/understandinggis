@@ -128,6 +128,7 @@ for segment in border.geoms:
 	# add the distance to our cumulative total
     cumulative_length += distance
 
+#REMEMBER - cum length and distance need to be forward or it wont pritn 
 #initialise startign value 0 as cum length, then a loop through the list, then addign the distcances with += to 0 
 
 print(cumulative_length)
