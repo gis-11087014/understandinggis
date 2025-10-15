@@ -116,23 +116,32 @@ idx = STRtree(geoms)
     #re-build SI to only inlucde those within the distric polygon 
 
 #1. retreive the polygon usign .icoc[0] - the first idex location and report boreholes in the set with f-stirng 
+#2. .query to find intersectinf boreoles with bounds of distric 
+#3. reults list used to query WP GDF using .iloc and report how many hole meet this 
+#4. use a smaller data set and within queruy to test it worked 
+
 # get the one and only polygon from the district dataset
 polygon = gulu_district.geometry.iloc[0]
 # how many rows are we starting with?
 print(f"Initial wells: {len(water_points.index)}")
-
-#2. .query to find intersectinf boreoles with bounds of distric 
 # get the indexes of wells that intersect bounds of the district
 possible_matches_index = idx.query(polygon)
-
-#3. reults list used to query WP GDF using .iloc and report how many hole meet this 
 # use those indexes to extract the possible matches from the GeoDataFrame
 possible_matches = water_points.iloc[possible_matches_index]
 # how many rows are left now? 
 print(f"Filtered wells: {len(possible_matches.index)}")
-
-#4. use a smaller data set and within queruy to test it worked 
 # then search the possible matches for precise matches using the slower but more precise method
 precise_matches = possible_matches.loc[possible_matches.within(polygon)]
 # how many rows are left now?
 print(f"Filtered wells: {len(precise_matches.index)}")
+
+#OPTIMISING NEAREST NEIGHBOUR W/ SI 
+
+#need to know distance from each pop point to nearest hoel then calc mean distance 
+#use SI to reduce calcs and efficeieny 
+#need to rebuild SI to make sure no. of bore holes matches the amount we found in the section above as we want to use the SI again 
+#then use idx.nearest to find nearest neighbour to reduce no. of calcs 
+#to rebuild we need to ovrride previos shapley.STRtree as read only, need to reflect contents wanted 
+
+# rebuild the spatial index using the new, smaller dataset
+idx = precise_matches
