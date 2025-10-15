@@ -47,10 +47,12 @@ print(result)
 #geopandas makes this easy from getting GDF back as an object so we can use .crs to check the CRS and .to_crs() to change it if needed
 
 from geopandas import read_file
+from shapely import STRtree
 
 # read in shapefiles, ensure that they all have the same CRS
 pop_points = read_file("../../data/gulu/pop_points.shp")
 water_points = read_file("../../data/gulu/water_points.shp").to_crs(pop_points.crs)
+#add to the end to make the same CRS 
 gulu_district = read_file("../../data/gulu/district.shp")
 
 #cuz three main CRS types, they could come out as any which is bad and hard to compare 
@@ -66,6 +68,40 @@ print(gulu_district.crs.to_epsg())
 #full is called Arc 1960 / ... where this is the datum the CRS uses - the refenece frame that maps an ellipsoid to the earth, in this case Clark 1880 
 #they also have local and global variants - we have only used WGS84 so far, the global datum so no we want local 
 #other wats to project EPSG on the websire - we odnt need we alreayd have pop_points 
-
 #we now want to match the CRS of all out data sets using the .to_crs function of GDF object 
-# read in the `water_points` dataset AND transform it the the same CRS as `pop_points`
+
+#now we use Spatial Index (SI) in geopandas to automaticaly help with topological operations in GDF/GeoSeries objects 
+#not great for undertsnaidng what it is even if easy 
+#now creating own SI to undertsnd better and then covert to higher-level geopandas version for comparison 
+#just useful innit 
+#will be used laterin course when data cant be stores in GDF 
+#there are also other opeiotn for SI libraries - both availabel on the UGIS website thing 
+
+#BUILDING OWN SI WITH SHAPLEY.STRTREE
+
+#FIRST need to rmeove all water pouints outside out areas of intrest - the Gulu District
+#THEN we need to work out the nearest borehole to each house (well poitn to pop poitn) and calc the distance between 
+#THEN we make a map and see patterns emerge! 
+#sounds easy, just volume makes comlicated
+
+print(f"Population points: {len(pop_points.index)}")
+print(f"Initial wells: {len(water_points.index)}")
+
+#f" is an f-string which means formattign strong literals - simple way to combine python with text output
+#add an f to the start of a strign and statement in {} 
+#when string used the python valuse are calced and results are added into strign 
+ 
+# {len(pop_points.index) is used to calc the number of rows n the GDF to built in len() - need to use index or a column to get rows 
+# if you pass GDF itself it will give u columsn 
+
+#SI is used to reduce the number of calc that need doing at currenlty it would be 128 million distances so we are just making more efficient 
+#STRtree is a read only, cannot add or remove objects from the index without a complete re-buid
+
+# get the geometries from the water points geodataframe as a list
+geoms = water_points.geometry.to_list()
+
+# initialise an instance of an STRtree using the geometries
+idx = STRtree(geoms)
+
+#this extract all the geometriews form the WP GDF and converts it from a pandas.series object to a list and loads it into STRtree objects 
+#the STRtree construtoe will calc bounding box (smallest reatngin aligned to axis) and load into the RTree SI 
