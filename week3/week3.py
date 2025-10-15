@@ -50,7 +50,7 @@ from geopandas import read_file
 
 # read in shapefiles, ensure that they all have the same CRS
 pop_points = read_file("../../data/gulu/pop_points.shp")
-water_points = read_file("../../data/gulu/water_points.shp")
+water_points = read_file("../../data/gulu/water_points.shp").to_crs(pop_points.crs)
 gulu_district = read_file("../../data/gulu/district.shp")
 
 #cuz three main CRS types, they could come out as any which is bad and hard to compare 
@@ -60,3 +60,12 @@ gulu_district = read_file("../../data/gulu/district.shp")
 print(pop_points.crs.to_epsg()) 
 print(water_points.crs.to_epsg()) 
 print(gulu_district.crs.to_epsg()) 
+
+#these are the EPSG codes - so can look up to locate on map 
+#UTM Zone 36N is a local conformal 
+#full is called Arc 1960 / ... where this is the datum the CRS uses - the refenece frame that maps an ellipsoid to the earth, in this case Clark 1880 
+#they also have local and global variants - we have only used WGS84 so far, the global datum so no we want local 
+#other wats to project EPSG on the websire - we odnt need we alreayd have pop_points 
+
+#we now want to match the CRS of all out data sets using the .to_crs function of GDF object 
+# read in the `water_points` dataset AND transform it the the same CRS as `pop_points`
