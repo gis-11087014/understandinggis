@@ -144,4 +144,40 @@ print(f"Filtered wells: {len(precise_matches.index)}")
 #to rebuild we need to ovrride previos shapley.STRtree as read only, need to reflect contents wanted 
 
 # rebuild the spatial index using the new, smaller dataset
-idx = precise_matches
+geoms = precise_matches.geometry.to_list()
+idx = STRtree(geoms)
+#this is where you fucked up - remembr to do geoms before each idx 
+
+#NEAREST NEIGHBOUR 
+
+#want to loop each pop point and calc nearest water point usign SI to determine distance 
+#cant simply loop thorugh GDF rows contained w/in it as will loop columns. 
+#need to use len(gdf) to retuen columns so need to use len(gdf.index) insteead 
+#to loop GDF rows data rows, use .iterrows() function to retuen iterable rep. of data rows and loop though that. 
+#.iterrows() returns 2 vlaues in each iteration loop as we haev both ID and Well 
+#ID is the index of the data set - a unique ID for each lien 
+#was .iloc last week - ID locator 
+#Well is the actual row of data in the loop - columns access and geometry 
+#remember to use len(GDF.index) for row no.s and gdf.itterrows() when interating rows 
+
+#define an empty list in variabel called distances 
+distances = []
+#open a for loop that iterates throuigh pop-points usign variables ID and Hoise to storw the index and row respectivley 
+for id, house in pop_points.iterrows(): 
+    #now put code inside loop to get ID of nearest well, resuluign ID number, distance between pop and hole and call result distance 
+    # use the spatial index to get the index of the closest well
+    nearest_well_index = idx.nearest(house.geometry)
+    # use the spatial index to get the closest well object from the original dataset
+    nearest_well = precise_matches.iloc[nearest_well_index].geometry.geoms[0]
+    #.iloc needs to have a value or list to read from which is NWI in this case 
+    #wells are a MulitPoint return - collection of individual points 
+    #so extract point objects from MultiPpoint usign .geoms to make list 
+    #add .geoms[0] to extract individal point from MP 
+    #FINALLY measure distance to nearest well usign diatcnae and appened result to distances list 
+    # store the distance to the nearest well
+    distances.append(distance(house.geometry.x, house.geometry.y, nearest_well.x, nearest_well.y))
+print(f"distance: {len(distances)}")
+#need to be an f-chain - i thin kcuz a list  
+
+
+    
