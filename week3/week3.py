@@ -105,3 +105,34 @@ idx = STRtree(geoms)
 
 #this extract all the geometriews form the WP GDF and converts it from a pandas.series object to a list and loads it into STRtree objects 
 #the STRtree construtoe will calc bounding box (smallest reatngin aligned to axis) and load into the RTree SI 
+
+#OPTIMISIGN INTERSECTIONS W/ SI 
+
+#use SI to filtr wells to exclude all outside Gulu area - defined as polygon district 
+#will do through ... 
+    #get SI borehole ID outside bounding box (distrioct)
+    # quetery the GDF to return rows that match ID - index - numbers 
+    #use topological within text to assess results are inside distict or not 
+    #re-build SI to only inlucde those within the distric polygon 
+
+#1. retreive the polygon usign .icoc[0] - the first idex location and report boreholes in the set with f-stirng 
+# get the one and only polygon from the district dataset
+polygon = gulu_district.geometry.iloc[0]
+# how many rows are we starting with?
+print(f"Initial wells: {len(water_points.index)}")
+
+#2. .query to find intersectinf boreoles with bounds of distric 
+# get the indexes of wells that intersect bounds of the district
+possible_matches_index = idx.query(polygon)
+
+#3. reults list used to query WP GDF using .iloc and report how many hole meet this 
+# use those indexes to extract the possible matches from the GeoDataFrame
+possible_matches = water_points.iloc[possible_matches_index]
+# how many rows are left now? 
+print(f"Filtered wells: {len(possible_matches.index)}")
+
+#4. use a smaller data set and within queruy to test it worked 
+# then search the possible matches for precise matches using the slower but more precise method
+precise_matches = possible_matches.loc[possible_matches.within(polygon)]
+# how many rows are left now?
+print(f"Filtered wells: {len(precise_matches.index)}")
