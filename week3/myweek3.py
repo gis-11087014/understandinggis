@@ -176,27 +176,8 @@ for id, house in pop_points.iterrows():
     #FINALLY measure distance to nearest well usign diatcnae and appened result to distances list 
     # store the distance to the nearest well
     distances.append(distance(house.geometry.x, house.geometry.y, nearest_well.x, nearest_well.y))
-print(f"Distances: {len(distances)}")
+print(f"distance: {len(distances)}")
 #need to be an f-chain - i thin kcuz a list  
 
-#measuring lots of very short distances (rather than one long one)
-#using pythagorean theorem - measuring on a flat surface, less intensive 
-
-#we should check list contents, dont want whole list as way to long so just print first 5 
-#this is list slicing 
-print(distances[:5])
-
-#add distances list to pop_points dataset as a column - each row represents the distance to the nearest well from tat house (m)
-# store distance to nearest well
-pop_points['nearest_well'] = distances
-print(pop_points.columns)
-#test by printing columns - actually right print lol 
-
-#calculatign the mean - diving the sum of all the distances by the number of distanced 
-mean = (sum(distances))/(len(distances))
-print(mean)
-
-#report simple stats about distanced using f-strings
-print(f"Minimum distance to water in Gulu District: {min(distances):,.0f}m.")
-print(f"Mean distance to water in Gulu District: {mean:,.0f}m.")
-print(f"Maximum distance to water in Gulu District: {max(distances):,.0f}m.")
+#got to 'a note on the distance function' 
+    
