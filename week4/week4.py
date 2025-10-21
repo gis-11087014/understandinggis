@@ -2,6 +2,10 @@ from geopandas import read_file
 from math import sqrt
 from sys import exit
 
+# set the percentage of nodes that you want to remove
+SIMPLIFICATION_PERC = 98
+#setting variable right at the top to easily find
+
 #working out effective area of each point - area of trinagle from both neighbour points
 #set formular for calculating trignale areas
 def get_effective_area(a, b, c):
@@ -35,22 +39,34 @@ def visvalingam_whyatt(node_list, n_nodes):
     #create empty function with def, below inputs but above rest 
     #put arguements in brakctes 
     #node list is points to simplify and n nodes is number of nodes returned in list
-    pass 
-
-#DEF NEED TO BE SEPERATE TO CALL BACK TO THEM INDIVIDUALLOY AND AVOID REPETITION - THIS IS WHY FUNCTION 
-
-# set the percentage of nodes that you want to remove
-SIMPLIFICATION_PERC = 98
-#setting variable right at the top to easily find 
+    #cant make effective area (EA) for end points as only 1 touching so no trignale therefore we use raneg to skip end points 
+    #range from second in until second last 
+    #then calc EA and store in dictionary in list called areas 
+    #dic will have point and EA connected 
+    # loop through each node, excluding the end points
+   areas = []
+   for i in range(1, len(node_list)-1):
+  # get the effective area
+          area = get_effective_area(node_list[i-1], node_list[i], node_list[i+1])	# COMPLETE THIS LINE
+#nodelist i-1 is the point before nodelist i which we need to make a triangle, same with i+1 
+  # append the node and effective area to the list
+          areas.append({"point": node_list[i], "area": area})
+#now makign 'fake EA' for that end points w/ .insert() at index locations 0 (start) and len(area) (the end)
+#len is length 
+    # add the end points back in at the start (0) and end (len(areas))
+    #need to add this after loop cuz otherwise you would add them everytime so would be wrong
+   areas.insert(0, {"point": node_list[0], "area": 0})
+   areas.insert(len(areas), {"point": node_list[len(node_list)-1], "area": 0})
+   print("areas:", len(areas), "node_list:", len(node_list))
+      # this is printing the total of them all and to compare them 
+      
+#DEF NEED TO BE SEPERATE TO CALL BACK TO THEM INDIVIDUALLOY AND AVOID REPETITION - THIS IS WHY FUNCTION  
 
 # open a dataset of all countries in the world
 world = read_file("../../data/natural-earth/ne_10m_admin_0_countries.shp")
 
 # extract the UK, project, and extract the geometry
 uk = world[(world.ISO_A3 == 'GBR')].to_crs("EPSG:27700").geometry.iloc[0]	# COMPLETE THIS LINE
-
-# report geometry type
-print(f"geometry type: {uk.geom_type}")
 
 #the EPSD:... bit is telling the code the UK (british national grid) area we want so insert that to make it not world
 #and the world.ISO... is where you make the code know its GBR from the ww defined country bs (week 2)
@@ -69,6 +85,9 @@ if uk.geom_type != 'MultiPolygon':
 #!= (not equal to
 #exit wont include rest of code - a solution to MultiPolygons 
 
+# report geometry type
+print(f"geometry type: {uk.geom_type}")
+
 # now we dont have a MultiPolygon, we need to work out which of its parts is the largest Polygon... 
 
 # initialise variables to hold the coordinates and area of the largest polygon
@@ -83,11 +102,9 @@ for poly in uk.geoms:
 	if poly.area > biggest_area:	# COMPLETE THIS LINE
     #this means if the polygon now being looked at is bigger than the previosly largets one found, this will now be the new compartions polygon until all have been compared and the largest is found
     
-		# store the new value for biggest area
 		biggest_area = poly.area
+		coord_list =list(poly.boundary.coords) 
         
-     # store the coordinates of the polygon
-coord_list = list(poly.boundary.coords)	# COMPLETE THIS LINE (look at the variables that you defined before the loop
 #this extracts the boundary of the Polygon which then etxracts list of coord paits using .coords whihc is converted into a list 
 
 #REMEMBER TO REMOVE UNNEEDED PRINT STATEMENTS THIS WILL BE BAD FOR ASSESSMENTS 
@@ -104,4 +121,10 @@ if n_nodes < 3:
     
 #going to use a function instead of just adding VW algroithm directly so it can be called numlitpl times and its neater 
 
+  # remove one node and overwrite it with the new, shorter list
+simplified_nodes = visvalingam_whyatt(coord_list, n_nodes)
 
+	# store the new value for biggest area
+       #biggest_area = poly.area
+        # store the coordinates of the polygon
+       #coord_list = list(poly.boundary.coords)	# COMPLETE THIS LINE (look at the variables that you defined before the loop
