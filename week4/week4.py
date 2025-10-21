@@ -10,3 +10,6 @@ uk = world[(world.ISO_A3 == 'GBR')].to_crs("EPSG:27700").geometry.iloc[0]	# COMP
 
 # report geometry type
 print(f"geometry type: {uk.geom_type}")
+
+#the EPSD:... bit is telling the code the UK (british national grid) area we want so insert that to make it not world
+#and the world.ISO... is where you make the code know its GBR from the ww defined country bs (week 2)
