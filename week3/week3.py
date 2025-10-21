@@ -252,4 +252,6 @@ my_ax.add_artist(ScaleBar(dx=1, units="m", location="lower left", length_fractio
 savefig('out/3.png', bbox_inches='tight')
 print("done!")
 
+#the brackets have different meanings - inclusive or exclusive - look on notes online 
+
 
