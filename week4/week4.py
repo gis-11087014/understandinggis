@@ -1,5 +1,43 @@
 from geopandas import read_file
+from math import sqrt
 from sys import exit
+
+#working out effective area of each point - area of trinagle from both neighbour points
+#set formular for calculating trignale areas
+def get_effective_area(a, b, c):
+	"""
+	* Calculate the area of a triangle made from the points a, b and c using Heron's formula
+	* 	https://en.wikipedia.org/wiki/Heron%27s_formula
+	"""
+	# calculate the length of each side
+	side_a = distance(b[0], b[1], c[0], c[1])
+	side_b = distance(a[0], a[1], c[0], c[1])
+	side_c = distance(a[0], a[1], b[0], b[1])
+
+	# calculate semi-perimeter of the triangle (perimeter / 2)
+	s = (side_a + side_b + side_c) / 2
+
+	# apply Heron's formula and return
+	return sqrt(s * (s - side_a) * (s - side_b) * (s - side_c))
+
+def distance(x1, y1, x2, y2):
+	"""
+	* Use Pythagoras' theorem to measure the distance. This is acceptable in this case because:
+	*	 - the CRS of the data is a local projection
+	*	 - the distances are short
+	*  - computational efficiency is important (as we are making many measurements)
+	"""
+	return sqrt((x2-x1)**2 + (y2-y1)**2)
+# complete this line to return the distance between (x1,y1) and (x2,y2)
+#** is sqaure in code
+
+def visvalingam_whyatt(node_list, n_nodes):
+    #create empty function with def, below inputs but above rest 
+    #put arguements in brakctes 
+    #node list is points to simplify and n nodes is number of nodes returned in list
+    pass 
+
+#DEF NEED TO BE SEPERATE TO CALL BACK TO THEM INDIVIDUALLOY AND AVOID REPETITION - THIS IS WHY FUNCTION 
 
 # set the percentage of nodes that you want to remove
 SIMPLIFICATION_PERC = 98
@@ -63,3 +101,7 @@ n_nodes = int(len(coord_list) / 100.0 * (100 - SIMPLIFICATION_PERC))
 # ensure that there are at least 3 nodes (minimum for a polygon otherwise it wont work)
 if n_nodes < 3:
 	n_nodes = 3
+    
+#going to use a function instead of just adding VW algroithm directly so it can be called numlitpl times and its neater 
+
+
