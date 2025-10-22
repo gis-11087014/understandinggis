@@ -1,6 +1,7 @@
 from geopandas import read_file
 from math import sqrt
 from sys import exit
+from shapely.geometry import LineString
 
 # set the percentage of nodes that you want to remove
 SIMPLIFICATION_PERC = 98
@@ -84,10 +85,11 @@ def visvalingam_whyatt(node_list, n_nodes):
 # if there is a node to the right of the deleted node, recalculate the effective area
        if node_to_delete < len(nodes)-1:
             nodes[node_to_delete]['area'] = get_effective_area(nodes[node_to_delete-1]['point'], nodes[node_to_delete]['point'], nodes[node_to_delete+1]['point']  )		# COMPLETE THIS LINE
-   print(len(nodes)) 
-       # this is printing the total of them all and to compare them 
-       #now need to work out smallest EA 
-     
+   # extract the nodes and return
+   #list comprehension to get the coords not the EA form the nodes list
+   #much neater than running a normal loop 
+   return [ node['point'] for node in nodes ]
+
 #DEF NEED TO BE SEPERATE TO CALL BACK TO THEM INDIVIDUALLOY AND AVOID REPETITION - THIS IS WHY FUNCTION  
 
 # open a dataset of all countries in the world
@@ -155,4 +157,14 @@ simplified_nodes = visvalingam_whyatt(coord_list, n_nodes)
 #now need loop to remove the repeatedly found smallest EA until we are left with the desired no. of nodes 
 #cuz removing items from list, we want to take a copy - need OG to compare later 
 #need to make shallow copy - new items references not also copied (deep) 
+
+# make a linestring out of the coordinates
+before_line = LineString(coord_list)
+print(f"original node count: {len(coord_list)}")
+print(f"original length: {before_line.length / 1000:.2f}km\n")
+
+# make the resulting list of coordinates into a line
+after_line = LineString(simplified_nodes)
+print(f"simplified node count: {len(simplified_nodes)}")
+print(f"simplified length: {after_line.length / 1000:.2f}km\n") #using \n makes a blank line in the run bit 
 
