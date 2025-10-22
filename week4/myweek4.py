@@ -58,36 +58,35 @@ def visvalingam_whyatt(node_list, n_nodes):
    areas.insert(0, {"point": node_list[0], "area": 0})
    areas.insert(len(areas), {"point": node_list[len(node_list)-1], "area": 0})
    print("areas:", len(areas), "node_list:", len(node_list))
-   
-   # take a copy of the list so that we don't edit the original - can edit nodes and not areas 
+      # this is printing the total of them all and to compare them 
+      # take a copy of the list so that we don't edit the original - can edit nodes and not areas 
    nodes = areas.copy()
 
-   #now need loop statement to find desired no of nodes - a while loop 
-   #keeps going until certain condition is met not all of it 
-   #we are looping until no of nodes = n_nodes value 
-   # keep going as long as the number of nodes is greater than the desired number - until nodes<n_nodes
+      #now need loop statement to find desired no of nodes - a while loop 
+      #keeps going until certain condition is met not all of it 
+      #we are looping until no of nodes = n_nodes value 
+      # keep going as long as the number of nodes is greater than the desired number - until nodes<n_nodes
    while len(nodes) > n_nodes:
-       
+          
        min_area = float("inf")
-       
+          
        for i in range(1, len(nodes)-1): 
-           #needs to be i not area - idk why 
-           if nodes[i]['area'] < min_area:
-               min_area = nodes[i]['area']
-               node_to_delete = i 
-               # remove the current point from the list
+              #needs to be i not area - idk why 
+              if nodes[i]['area'] < min_area:
+                  min_area = nodes[i]['area']
+                  node_to_delete = i 
+                  # remove the current point from the list
        nodes.pop(node_to_delete)
-   #inside while but not for cuz dont wnat to remove every single interation 
-   #now need to find the EA of the new point pattern which is when the node to delete is gone so now has new neighbours 
-   # recalculate effective area to the left of the deleted node
+      #inside while but not for cuz dont wnat to remove every single interation 
+      #now need to find the EA of the new point pattern which is when the node to delete is gone so now has new neighbours 
+      # recalculate effective area to the left of the deleted node
        nodes[node_to_delete-1]['area'] = get_effective_area(nodes[node_to_delete-2]['point'], nodes[node_to_delete-1]['point'], nodes[node_to_delete]['point'])	# COMPLETE THIS LINE
-# if there is a node to the right of the deleted node, recalculate the effective area
+   # if there is a node to the right of the deleted node, recalculate the effective area
        if node_to_delete < len(nodes)-1:
-            nodes[node_to_delete]['area'] = get_effective_area(nodes[node_to_delete-1]['point'], nodes[node_to_delete]['point'], nodes[node_to_delete+1]['point']  )		# COMPLETE THIS LINE
+               nodes[node_to_delete]['area'] = get_effective_area(nodes[node_to_delete-1]['point'], nodes[node_to_delete]['point'], nodes[node_to_delete+1]['point']  )		# COMPLETE THIS LINE
    print(len(nodes)) 
-       # this is printing the total of them all and to compare them 
-       #now need to work out smallest EA 
-     
+          # this is printing the total of them all and to compare them 
+          #now need to work out smallest EA 
 #DEF NEED TO BE SEPERATE TO CALL BACK TO THEM INDIVIDUALLOY AND AVOID REPETITION - THIS IS WHY FUNCTION  
 
 # open a dataset of all countries in the world
@@ -131,7 +130,7 @@ for poly in uk.geoms:
     #this means if the polygon now being looked at is bigger than the previosly largets one found, this will now be the new compartions polygon until all have been compared and the largest is found
     
 		biggest_area = poly.area
-		coord_list = list(poly.boundary.coords) 
+		coord_list =list(poly.boundary.coords) 
         
 #this extracts the boundary of the Polygon which then etxracts list of coord paits using .coords whihc is converted into a list 
 
@@ -152,7 +151,7 @@ if n_nodes < 3:
   # remove one node and overwrite it with the new, shorter list
 simplified_nodes = visvalingam_whyatt(coord_list, n_nodes)
 
-#now need loop to remove the repeatedly found smallest EA until we are left with the desired no. of nodes 
-#cuz removing items from list, we want to take a copy - need OG to compare later 
-#need to make shallow copy - new items references not also copied (deep) 
-
+	# store the new value for biggest area
+       #biggest_area = poly.area
+        # store the coordinates of the polygon
+       #coord_list = list(poly.boundary.coords)	# COMPLETE THIS LINE (look at the variables that you defined before the loop
