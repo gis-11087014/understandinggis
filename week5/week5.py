@@ -17,11 +17,6 @@ def compute_offset(origin, distance, direction):
 #need to use [1] or [0] to specify which value to calculate 
 #direction is the angle but not in radians so need to input that line to make into radians 
 
-# this code tests whether your function works correctly
-origin = (345678, 456789)
-destination = compute_offset(origin, 1011, 123)	# move 1011m in a direction of 123 degrees 
-print("CORRECT!!" if (int(destination[0]), int(destination[1])) == (345127, 457636) else f"INCORRECT!! Error: {(int(destination[0])-345127, int(destination[1])-457636)}")
-
 def evaluate_distortion(g, transformer, minx, miny, maxx, maxy, minr, maxr, sample_number=1000, vertices=16):
     # calculate the required number of random locations (x and y separately) plus radius
     xs = uniform(low=minx, high=maxx, size=sample_number) 
@@ -40,7 +35,7 @@ def evaluate_distortion(g, transformer, minx, miny, maxx, maxy, minr, maxr, samp
     shape_indices = []
     distance_indices = []
     
-    for x, y, r in zip(area_indices, shape_indices, distance_indices):
+    for x, y, r in zip(xs, ys, rs):
         # each random circle is deifned by x, y, r in each iteration of the loop 
         # zip allos us to loop thorugh them all at once - built in function
         # construct a circle around the centre point on the ellipsoid
@@ -63,7 +58,7 @@ def evaluate_distortion(g, transformer, minx, miny, maxx, maxy, minr, maxr, samp
         # transform the centre point to the projected CRS
         centre_x, centre_y = transformer.transform(x, y, direction='FORWARD')
         # construct a circle around the projected point on a plane, calculate area
-        planar_area = Polygon([ compute_offset(centre_x, centre_y, r, az) for az in forward_azimuths ]).area
+        planar_area = Polygon([compute_offset((centre_x, centre_y), r, az) for az in forward_azimuths]).area
    
         # code to calc area distortion (Jonny's equation)
         area_indices.append(abs(ellipsoidal_area - planar_area) / abs(ellipsoidal_area + planar_area))         
@@ -71,14 +66,43 @@ def evaluate_distortion(g, transformer, minx, miny, maxx, maxy, minr, maxr, samp
         
         # now do the same for shape distortion
         # get radial distances from the centre to each of the 16 points on the circle
-        ellipsoidal_radial_distances = [ hypot(centre_x - ex, centre_y - ey) for ex, ey in e_coords ]
+        ellipsoidal_radial_distances = [hypot(centre_x - ex, centre_y - ey) for ex, ey in e_coords]
         # get the absolute proportional difference between the expected and actual radial distance for each 'spoke'
         shape_distortion = [abs((1 / vertices) - (d / sum(ellipsoidal_radial_distances))) for d in ellipsoidal_radial_distances]
         # gets 16 absolute proportions (aka differences in expected length) and then tyring to find the sum and append to shape_indicies list 
+        shape_indices.append(sum(shape_distortion))
         
-    print(area_indices, shape_indices)
-    return 
+    print(len(area_indices), len(shape_indices))
 
+    Ea = 1 / sample_number * sum(area_indices)
+    Es = 1 / sample_number * sum(shape_indices)
+
+    for _ in range(sample_number):
+        
+        xs = uniform(low=minx, high=maxx, size=2)
+        ys = uniform(low=miny, high=maxy, size=2)
+        #need to add size=2 so we get 2 x and ys to make 2 coords
+        
+        # calculate the distance along the ellipsoid
+        ellipsoidal_distance = g.line_length(xs, ys)
+        
+        # transform the coordinates
+        origin = transformer.transform(xs[0], ys[0], direction='FORWARD')
+        destination = transformer.transform(xs[1], ys[1], direction='FORWARD')
+        #remmber direction and the []
+
+        # calculate the planar distance
+        planar_distance = hypot(origin[0] - destination[0], origin[1] - destination[1])
+
+        # calculate distance index 
+        distance_indices.append(abs(ellipsoidal_distance - planar_distance) / abs (ellipsoidal_distance + planar_distance))
+
+    Ep = 1 / sample_number * sum(distance_indices)
+
+    return (Ep, Es, Ea)
+        
+        
+        
 # open a dataset of all countries in the world
 world = read_file("../../data/natural-earth/ne_10m_admin_0_countries.shp")
 
@@ -93,8 +117,6 @@ ice = land_cover[(land_cover.fclass == "glacier")]
 
 # get the bounds of the country - Iceland in this case - this is expanding the code
 minx, miny, maxx, maxy = iceland.total_bounds
-
-print(iceland.total_bounds)
 
 #using WGS84 Datum as ellipsoidal for model - good for global scale project
 
