@@ -99,25 +99,8 @@ def evaluate_distortion(g, transformer, minx, miny, maxx, maxy, minr, maxr, samp
 
     Ep = 1 / sample_number * sum(distance_indices)
 
-    return (Ep, Es, Ea)
+    return Ep, Es, Ea
         
-        
-        
-# open a dataset of all countries in the world
-world = read_file("../../data/natural-earth/ne_10m_admin_0_countries.shp")
-
-# extract the Iceland from it 
-iceland = world[(world.ISO_A3 == 'ISL')]
-
-# open iceland data 
-land_cover = read_file("../../data/iceland/gis_osm_natural_a_free_1.shp")
-
-# extract land cover that is ice from it 
-ice = land_cover[(land_cover.fclass == "glacier")]
-
-# get the bounds of the country - Iceland in this case - this is expanding the code
-minx, miny, maxx, maxy = iceland.total_bounds
-
 #using WGS84 Datum as ellipsoidal for model - good for global scale project
 
 # set the geographical proj string and ellipsoid (should be the same)
@@ -126,10 +109,23 @@ g = Geod(ellps='WGS84')
 
 # create a list of dictionaries for the projected CRS' to evaluate for distortion
 projections = [
-    {'name':"Web Mercator", 'description':"Global Conformal",   'proj':"+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs"},
-    {'name':"Eckert IV",    'description':"Global Equal Area",  'proj':"+proj=eck4 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs"},
-    {'name':"Albers equal-area conic", 'description':"Local Equal Area",   'proj':"+proj=aea +lon_0=-18.28125 +lat_1=61.2123032 +lat_2=67.3508634 +lat_0=64.2815833 +datum=WGS84 +units=m +no_defs"}
-]
+        {'name':"Web Mercator", 'description':"Global Conformal",   'proj':"+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs"},
+        {'name':"Eckert IV",    'description':"Global Equal Area",  'proj':"+proj=eck4 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"},
+        {'name':"Albers Conic", 'description':"Local Equal Area",   'proj':"+proj=aea +lon_0=-18.8964844 +lat_1=63.5404797 +lat_2=66.3620426 +lat_0=64.9512612 +datum=WGS84 +units=m +no_defs"}
+    ]
+
+# open a dataset of all countries in the world
+world = read_file("../../data/natural-earth/ne_10m_admin_0_countries.shp")
+# extract the Iceland from it 
+iceland = world[(world.ISO_A3 == 'ISL')]
+
+# open iceland data 
+land_cover = read_file("../../data/iceland/gis_osm_natural_a_free_1.shp")
+# extract land cover that is ice from it 
+ice = land_cover[(land_cover.fclass == "glacier")]
+
+# get the bounds of the country - Iceland in this case - this is expanding the code
+minx, miny, maxx, maxy = iceland.total_bounds
 
 # loop through each CRS
 for ax_num, projection in enumerate(projections):
@@ -137,4 +133,15 @@ for ax_num, projection in enumerate(projections):
     transformer = Transformer.from_crs(CRS.from_proj4(geo_string), CRS.from_proj4(projection['proj']), always_xy=True)
     # calculate the distortion
     Ep, Es, Ea = evaluate_distortion(g, transformer, minx, miny, maxx, maxy, 10000, 1000000, 1000)
-    
+
+
+    # calculate ice area
+    ice_area_km2 = ice.to_crs(projection['proj']).geometry.area.sum() / 1000000
+
+    # report to user
+    print(f"\n{projection['name']} ({projection['description']})")
+    print(f"\t{'Distance distortion (Ep):':<26}{Ep:.6f}")
+    print(f"\t{'Shape distortion (Es):':<26}{Es:.6f}")
+    print(f"\t{'Area distortion (Ea):':<26}{Ea:.6f}")
+    print(f"\t{'Ice Area:':<26}{ice_area_km2:,.0f} km sq.")
+
