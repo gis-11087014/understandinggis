@@ -1,7 +1,7 @@
 from math import radians 
 from math import cos , sin	# IMPORT NECESSARY FUNCTIONS HERE
 from geopandas import read_file
-from pyproj import Geod
+from pyproj import Geod , CRS , Transformer
 
 def compute_offset(origin, distance, direction):
     """
@@ -48,3 +48,9 @@ projections = [
     {'name':"Eckert IV",    'description':"Global Equal Area",  'proj':"+proj=eck4 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs"},
     {'name':"Albers equal-area conic", 'description':"Local Equal Area",   'proj':"+proj=aea +lon_0=-18.28125 +lat_1=61.2123032 +lat_2=67.3508634 +lat_0=64.2815833 +datum=WGS84 +units=m +no_defs"}
 ]
+
+# loop through each CRS
+for ax_num, projection in enumerate(projections):
+    # initialise a PyProj Transformer to transform coordinates
+    transformer = Transformer.from_crs(CRS.from_proj4(geo_string), CRS.from_proj4(projection['proj']), always_xy=True)
+    
