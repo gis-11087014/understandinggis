@@ -35,6 +35,7 @@ rio_show(
   dem_data,
   ax=my_ax,
   transform = dem.transform,
+  cmap = 'pink'
 )
 
 # add the empty layer, plotting empty 0s ontop of the DEM 
