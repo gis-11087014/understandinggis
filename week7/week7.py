@@ -43,3 +43,6 @@ with rio_open('../../data/helvellyn/Helvellyn-50.tif') as dem:
 
 #each band is stored in the dataset as a two dimensional list, which can be accessed in the form dem[row][column]
 #to extract - use row and column to read values in the list aka the band
+
+#PART 2
+
