@@ -207,4 +207,67 @@ my_ax.legend(handles=[
 savefig('out/2.png', bbox_inches='tight')
 print("done!")
 
+# Import necessary libraries
+from time import time
+from geopandas import read_file, GeoSeries
+from pyproj import Geod
+import matplotlib.pyplot as plt
+from rtree import index
+from matplotlib_scalebar.scalebar import ScaleBar
+import matplotlib.patches as mpatches
+
+# Set start time
+start_time = time()
+
+# Set ellipsoid distance
+g = Geod(ellps='WGS84')
+
+# Load the shapefile of countries
+world = read_file("P:/UGIS/ugis-assessment1/data/natural-earth/ne_10m_admin_0_countries.shp") 
+
+# Create a spatial index
+spatial_index = index.Index()
+for idx, country in world.iterrows():
+    spatial_index.insert(idx, country.geometry.bounds)
+
+# Initialize variables to store the shortest border details
+shortest_length = float('inf')
+country_pair = (None, None)
+shortest_border = None
+country_a_geom = None
+country_b_geom = None
+
+# Iterate over each country to find potential neighbors
+for i, country_a in world.iterrows():
+    candidates = list(spatial_index.intersection(country_a.geometry.bounds))
+
+    for j in candidates:
+        if i >= j:  # Skip duplicate pairs and self-comparisons
+            continue
+
+        country_b = world.iloc[j]
+        shared_border = country_a.geometry.intersection(country_b.geometry)
+
+        if shared_border.is_empty or shared_border.geom_type == 'Point':
+            continue
+
+        cumulative_length = 0
+        segments = [shared_border] if shared_border.geom_type == 'LineString' else list(shared_border.geoms)
+
+        for segment in segments:
+            distance = g.inv(segment.coords[0][0], segment.coords[0][1],
+                             segment.coords[1][0], segment.coords[1][1])[2]
+            cumulative_length += distance
+
+        if cumulative_length < shortest_length:
+            shortest_length = cumulative_length
+            country_pair = (country_a['NAME'], country_b['NAME'])
+            shortest_border = shared_border
+            
+
+# Check if a shortest border was found
+if shortest_border is None:
+    print("No shared borders found.")
+else:
+    print(f"Shortest border found between {country_pair[0]} and {country_pair[1]} with length: {shortest_length:.2f} m")
 

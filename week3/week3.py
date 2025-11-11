@@ -165,7 +165,7 @@ idx = STRtree(geoms)
 #define an empty list in variabel called distances 
 distances = []
 #open a for loop that iterates throuigh pop-points usign variables ID and Hoise to storw the index and row respectivley 
-for id, house in pop_points.iterrows(): 
+for id, house in pop_points(): 
     #now put code inside loop to get ID of nearest well, resuluign ID number, distance between pop and hole and call result distance 
     # use the spatial index to get the index of the closest well
     nearest_well_index = idx.nearest(house.geometry)

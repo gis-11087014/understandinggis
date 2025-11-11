@@ -62,3 +62,5 @@ my_ax.set(title="Population Density: Equal Earth Coordinate Reference System")
 # save the result
 savefig('week1/out/1.png')
 print("done!")
+
+#test 
