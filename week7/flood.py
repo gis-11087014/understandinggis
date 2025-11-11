@@ -3,7 +3,14 @@ from rasterio import open as rio_open
 from rasterio.transform import rowcol
 from rasterio.plot import show as rio_show
 from matplotlib.pyplot import subplots, savefig
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap, Normalize
+from math import floor, ceil
+from geopandas import GeoSeries
+from shapely.geometry import Point
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+from matplotlib.cm import ScalarMappable
+from matplotlib_scalebar.scalebar import ScaleBar
     
 
 # set the depth of the flood
@@ -48,7 +55,7 @@ def flood_fill(depth, x0, y0, dem_data, transform):
         # add it to the register of those already assessed
         assessed.add((r, c))
     
-        #saying that if r & c is going to flood to sert it to 1 
+        #saying that if r & c is going to flood to set it to 1 
         if dem_data[r, c] <= flood_extent:
             flood_layer[r, c] = 1
         
@@ -80,4 +87,63 @@ with rio_open("../../data/helvellyn/Helvellyn-50.tif") as dem:  # 50m resolution
 
 print(output.sum())
 
+# output image
+fig, my_ax = subplots(1, 1, figsize=(16, 10))
+my_ax.set_title("Simple Flood Fill Model")
 
+# draw dem
+rio_show(
+    dem_data,
+    ax=my_ax,
+    transform = dem.transform,
+    cmap = 'PuRd',
+    )
+
+# draw dem as contours
+rio_show(
+    dem_data,
+    ax=my_ax,
+    contour=True,
+    transform = dem.transform,
+    colors = ['white'],
+    linewidths = [0.5],
+    )
+
+# add flooding
+rio_show(
+    output,
+    ax=my_ax,
+    transform=dem.transform,
+    cmap = LinearSegmentedColormap.from_list('binary', [(0, 0, 0, 0), (0, 0.5, 1, 0.5)], N=2)
+    )
+
+# add origin point
+GeoSeries(Point(LOCATION)).plot(
+    ax = my_ax,
+    markersize = 50,
+    color = 'red',
+    edgecolor = 'white'
+    )
+
+# add a colour bar
+fig.colorbar(ScalarMappable(norm=Normalize(vmin=floor(dem_data.min()), vmax=ceil(dem_data.max())), cmap='cividis'), ax=my_ax, pad=0.01)
+
+# add north arrow
+x, y, arrow_length = 0.97, 0.99, 0.1
+my_ax.annotate('N', xy=(x, y), xytext=(x, y-arrow_length),
+    arrowprops=dict(facecolor='black', width=5, headwidth=15),
+    ha='center', va='center', fontsize=20, xycoords=my_ax.transAxes)
+
+# add scalebar
+my_ax.add_artist(ScaleBar(dx=1, units="m", location="lower right"))
+
+# add legend for point
+my_ax.legend(
+    handles=[
+        Patch(facecolor=(0, 0.5, 1, 0.5), edgecolor=None, label=f'Flood Zone ({FLOOD_DEPTH}m)'),
+        Line2D([0], [0], marker='o', color=(1,1,1,0), label='Flood Origin', markerfacecolor='red', markersize=8)
+    ], loc='lower left')
+
+# save the result
+savefig('./out/6.png', bbox_inches='tight')
+print("done!")
