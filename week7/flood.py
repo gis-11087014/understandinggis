@@ -121,12 +121,12 @@ rio_show(
 GeoSeries(Point(LOCATION)).plot(
     ax = my_ax,
     markersize = 50,
-    color = 'red',
+    color = 'blue',
     edgecolor = 'white'
     )
 
 # add a colour bar
-fig.colorbar(ScalarMappable(norm=Normalize(vmin=floor(dem_data.min()), vmax=ceil(dem_data.max())), cmap='cividis'), ax=my_ax, pad=0.01)
+fig.colorbar(ScalarMappable(norm=Normalize(vmin=floor(dem_data.min()), vmax=ceil(dem_data.max())), cmap='PuRd'), ax=my_ax, pad=0.01)
 
 # add north arrow
 x, y, arrow_length = 0.97, 0.99, 0.1
@@ -141,7 +141,7 @@ my_ax.add_artist(ScaleBar(dx=1, units="m", location="lower right"))
 my_ax.legend(
     handles=[
         Patch(facecolor=(0, 0.5, 1, 0.5), edgecolor=None, label=f'Flood Zone ({FLOOD_DEPTH}m)'),
-        Line2D([0], [0], marker='o', color=(1,1,1,0), label='Flood Origin', markerfacecolor='red', markersize=8)
+        Line2D([0], [0], marker='o', color=(1,1,1,0), label='Flood Origin', markerfacecolor='blue', markersize=8)
     ], loc='lower left')
 
 # save the result
