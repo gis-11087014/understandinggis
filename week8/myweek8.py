@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Nov 18 12:25:20 2025
+
+@author: p48883db
+"""
+
 from numpy import zeros
 from rasterio import open as rio_open
 from rasterio.plot import show as rio_show
