@@ -26,6 +26,10 @@ with rio_open("../../data/helvellyn/Helvellyn-50.tif") as dem:
 
     # create a new 'band' of raster data the same size
     output = zeros(dem_data.shape)
+    
+    # set the cell at x, y to 1
+    #setting the value in the array position that coresponds to these coords as 1 so it is setting the peak of the mountain as a new colour
+    dem_data[dem.index(334170, 515165)] = 1
 
 # plot the dataset
 fig, my_ax = subplots(1, 1, figsize=(16, 10))
@@ -42,14 +46,6 @@ rio_show(
     ax=my_ax,
     transform=dem.transform,
     cmap = LinearSegmentedColormap.from_list('binary_viewshed', [(0, 0, 0, 0), (1, 0, 0, 0.5)], N=2)
-    )
-
-# add origin point
-GeoSeries(Point(LOCATION)).plot(
-    ax = my_ax,
-    markersize = 10,
-    color = 'blue',
-    edgecolor = 'white'
     )
 
 savefig('./out/bresenham.png', bbox_inches='tight')
