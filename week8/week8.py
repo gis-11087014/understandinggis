@@ -8,6 +8,7 @@ from geopandas import GeoSeries
 from shapely.geometry import Point
 from skimage.draw import line
 from numpy import column_stack
+from skimage.draw import circle_perimeter
 
 # set origin 
 LOCATION = (334170, 515165)
@@ -38,18 +39,25 @@ with rio_open("../../data/helvellyn/Helvellyn-50.tif") as dem:
     dem_data[dem.index(334170, 515165)] = 1
     
     #list of pixel locations that describe a line between 2 locations - produces tuple of numpy arrays
-    print(line(row, col, row, col+50))
+    #print(line(row, col, row, col+50))
     
     #column stack will stack the 1D arrays and return them in a 2D array 
-    print(column_stack(line(row, col, row, col+50)))
+    #print(column_stack(line(row, col, row, col+50)))
     
+    #makes all the coords red through loopign onto output layer
+    #dont need .index cuz not flattening it
     for r, c in column_stack(line(row, col, row, col+50)):
         
+        #turns transparent coords into a red layer 
         output[r, c] = 1
         
         print(output)
         
-
+    for r, c in column_stack(circle_perimeter(row, col, 50)):
+        
+        output[r,c] = 1
+        
+        print(output)
 
 # plot the dataset
 fig, my_ax = subplots(1, 1, figsize=(16, 10))
