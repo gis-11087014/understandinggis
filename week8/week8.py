@@ -3,6 +3,20 @@ from rasterio import open as rio_open
 from rasterio.plot import show as rio_show
 from matplotlib.pyplot import subplots, savefig
 from matplotlib.colors import LinearSegmentedColormap
+from rasterio.transform import rowcol
+from geopandas import GeoSeries
+from shapely.geometry import Point
+
+# set origin 
+LOCATION = (334170, 515165)
+
+def coord_2_img(transform, x, y):
+	""" 
+	* Convert from coordinate space to image space using the 
+	*   Affine transform object from a rasterio dataset
+	"""
+	r, c = rowcol(transform, x, y)
+	return int(r), int(c)
 
 # open the elevation data file
 with rio_open("../../data/helvellyn/Helvellyn-50.tif") as dem:
@@ -29,4 +43,18 @@ rio_show(
     transform=dem.transform,
     cmap = LinearSegmentedColormap.from_list('binary_viewshed', [(0, 0, 0, 0), (1, 0, 0, 0.5)], N=2)
     )
+
+# add origin point
+GeoSeries(Point(LOCATION)).plot(
+    ax = my_ax,
+    markersize = 10,
+    color = 'blue',
+    edgecolor = 'white'
+    )
+
 savefig('./out/bresenham.png', bbox_inches='tight')
+
+#empty layer over map, (1) and anything added will appear as red 
+#start by drawing a poitnt 
+    #convert coord pair from coord space to image space 
+    #set pixel at this location in output suface to 1

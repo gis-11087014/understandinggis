@@ -84,7 +84,6 @@ with rio_open("../../data/helvellyn/Helvellyn-50.tif") as dem:  # 50m resolution
     # calculate the flood
     output = flood_fill(FLOOD_DEPTH, LOCATION[0], LOCATION[1], dem_data, dem.transform)
     
-
 print(output.sum())
 
 # output image
