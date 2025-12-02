@@ -7,7 +7,7 @@ Created on Tue Dec  2 11:33:44 2025
 
 """
 * Script to evaluate which of the Equal Area projections recommended by 
-*		projectionwizard.org is the best for use in Iceland
+*        projectionwizard.org is the best for use in Iceland
 """
 from pandas import DataFrame
 from time import perf_counter
@@ -56,11 +56,11 @@ if __name__ == "__main__":
     # start timer
     start = perf_counter()
 
-    #empty task list
-    tasks = []
-
     # initialise a PyProj Transformer to transform coordinates
     results = DataFrame(projections)
+    #empty task list
+    tasks = []
+    
     for idx, p in results.iterrows():
 
         # this is a tuple (id, dictionary), where the dictionary is the arguments for distortion_worker
@@ -89,9 +89,18 @@ if __name__ == "__main__":
 
             # record the ID so that we can assign the correct value later
             future_map[future] = idx
-
+            
         # report how many processes were launched
         print(f"Launched {len(executor._processes)} processes...")
+        
+        # process the future objects as they complete using as_completed()
+        for future in as_completed(future_map.keys()):
+
+            # get the ID for the projection in this process
+            idx = future_map[future]
+
+    # get the result for this future object and load into the schools GeoDataFrame
+    results.loc[idx, ['Ep', 'Es']] = future.result()
 
     # print the results, sorted by area distortion
     #print(DataFrame(results).sort_values('Ea'))
