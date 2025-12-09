@@ -109,10 +109,16 @@ class Schelling:
     #print (self.agents)
     #print(neighbours)
     
+    def run(self):
+        
+        for i in range(1, self.n_interations+1):
+            
+            n_changes = 0
+    
 #an instance of Schelling
 schelling = Schelling(25, 25, 0.25, 0.6, 500, ({}))
 
-print(schelling.is_unsatisfied(list(schelling.agents.keys())[0]))
+#print(schelling.is_unsatisfied(list(schelling.agents.keys())[0]))
 
 # initialise plot with two subplots (1 row, 2 columns)
 fig, my_axs = subplots(1, 2, figsize=(14, 6))
