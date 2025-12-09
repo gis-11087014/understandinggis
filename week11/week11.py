@@ -2,6 +2,7 @@
 #class is how we deifne an object
 
 #AMB is angent based modelling - computer simulation to replicate life 
+#an AMB is made up of a class for the model and a class for the agents
 
 #always an extra agrument in a class def called self that is passed first 
 
@@ -20,6 +21,9 @@ class Schelling:
     * the setup of an instance of this class (i.e. 'construct' it)
     """
     
+    # class variable containing list of neighbours
+    neighbours = [ (i, j) for i in range(-1, 2) for j in range(-1, 2) if (i, j) != (0, 0) ]
+
     def __init__(self, width, height, empty_ratio, similarity_threshold, n_iterations, agents): 
         #storing each argument except self in instance variable with the same name
         self.width = width
@@ -56,8 +60,8 @@ class Schelling:
         
     def plot(self, my_ax, title):
         """
-       Plot the current state of the model
-       """
+        Plot the current state of the model
+        """
         my_ax.set_title(title, fontsize=10, fontweight='bold')
         my_ax.set_xlim([0, self.width])
         my_ax.set_ylim([0, self.height])
@@ -70,15 +74,45 @@ class Schelling:
             # we can use the agent's group name as the colour directly!
             my_ax.scatter(agent[0]+0.5, agent[1]+0.5, color=self.agents[agent])
         
-        #print (all_houses)
-        #print (self.empty_houses)
-        #print (len(self.remaining_houses))
-        #print (red_group)
-        #print (blue_group)
-        #print (self.agents)
+    def is_unsatisfied(self, agent):
+        
+        #set these as 0 to keep track of how many neighbours are in the same and different groups
+        count_similar = 0
+        count_different = 0
+        
+        for n in self.neighbours: 
+            try:
+                #log whether the group of the neighbour matches the agent
+                if self.agents[(agent[0]+n[0], agent[1]+n[1])] == self.agents[agent]:
+                    count_similar += 1
+                else:
+                    count_different += 1
+
+            # if we go off the edge of the map or house is empty, there is nothing to do
+            except KeyError:
+                continue
+        try:
+            # return whether or not the proportion of similar neighbours meets the threshold
+            return count_similar / (count_similar + count_different) < self.similarity_threshold
+
+        # catch the situation when there are only empty neighbours
+        except ZeroDivisionError:
+  
+            # if this is the case they will be satisfied
+            return False
+    
+    #print (all_houses)
+    #print (self.empty_houses)
+    #print (len(self.remaining_houses))
+    #print (red_group)
+    #print (blue_group)
+    #print (self.agents)
+    #print(neighbours)
     
 #an instance of Schelling
 schelling = Schelling(25, 25, 0.25, 0.6, 500, ({}))
+
+print(schelling.is_unsatisfied(list(schelling.agents.keys())[0]))
 
 # initialise plot with two subplots (1 row, 2 columns)
 fig, my_axs = subplots(1, 2, figsize=(14, 6))
@@ -96,11 +130,7 @@ print("done")
 
 
 
-#PART 2
 
-#an AMB is made up of a class for the model and a class for the agents 
-
-#building up our class...
 
 
 
