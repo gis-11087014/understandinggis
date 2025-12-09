@@ -45,9 +45,23 @@ class Schelling:
         #identify the remaining houses w/ list slicing       
         self.remaining_houses = all_houses[n_empty:]
         
+        # get the agents for each group using list slicing and comprehension
+        red_group = [[coords, 'red'] for coords in self.remaining_houses[0::2]]	# every other cell from 0 to the end
+        
+        # get the agents for each group using list slicing and comprehension
+        blue_group = [[coords, 'blue'] for coords in self.remaining_houses[1::2]]	# every other cell from 1 to the end
+        
+        # add both sets of agents to the instance variable
+        self.agents.update(dict(red_group + blue_group))
+        
+        
         #print (all_houses)
         #print (self.empty_houses)
-        print(len(self.remaining_houses))
+        #print (len(self.remaining_houses))
+        #print (red_group)
+        #print (blue_group)
+        #print (self.agents)
+        print(self.agents[(0,0)])
     
 #an instance of Schelling
 schelling = Schelling(25, 25, 0.25, 0.6, 500, ({}))
