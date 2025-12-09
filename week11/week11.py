@@ -5,6 +5,9 @@
 
 #always an extra agrument in a class def called self that is passed first 
 
+from random import shuffle
+
+
 #this creates a class
 class Schelling:
     
@@ -28,6 +31,10 @@ class Schelling:
 
         # get all house addresses
         all_houses = [(x, y) for x in range(self.width) for y in range(self.height)]
+        
+        # shuffle the order of the houses
+        #randomises it
+        shuffle(all_houses)
         
         print (all_houses)
     
