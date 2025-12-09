@@ -8,6 +8,8 @@
 
 from random import shuffle
 from matplotlib.pyplot import subplots, savefig, subplots_adjust
+from copy import deepcopy
+from random import choice
 
 #this creates a class
 class Schelling:
@@ -111,9 +113,44 @@ class Schelling:
     
     def run(self):
         
-        for i in range(1, self.n_interations+1):
+        #loop through itertaions of model 
+        for i in range(1, self.n_iterations+1):
             
+            #couns agents from 0
             n_changes = 0
+            
+            # create a new copy of the agents
+            self.old_agents = deepcopy(self.agents)
+            
+            for agent in (self.old_agents):
+                
+                #is the person isnt satisifed then they need a new one from empty houses list
+                if self.is_unsatisfied(agent):
+                    
+                    # randomly choose an empty house for them to move to
+                    empty_house = choice(self.empty_houses)
+                    
+                    # add the new / remove the old location of the agent's house
+                    self.agents[empty_house] = self.agents[agent]
+                    del self.agents[agent]
+                    
+                    # add the new / remove the old house from the list of empty houses
+                    self.empty_houses.append(agent)
+                    self.empty_houses.remove(empty_house)
+                    
+                    #adding 1 to n_changes 
+                    n_changes += 1
+                    
+            # update the user
+            print(f"Iteration: {i+1}, Number of changes: {n_changes}")
+
+            # stop iterating if no changes happened
+            if n_changes == 0:
+                print(f"\nFound optimal solution at {i+1} iterations\n")
+                break
+        
+        return i
+                    
     
 #an instance of Schelling
 schelling = Schelling(25, 25, 0.25, 0.6, 500, ({}))
@@ -128,6 +165,15 @@ subplots_adjust(wspace=0.1)
 
 # plot the initial state of the model into the first axis
 schelling.plot(my_axs[0], 'Initial State')
+
+#call stored in variable interaitons 
+iterations = schelling.run()
+
+# add the overall title into the model
+fig.suptitle(f"Schelling Model of Segregation ({schelling.similarity_threshold * 100:.2f}% Satisfaction after {iterations} iterations)")
+
+# plot the result into the second axis
+schelling.plot(my_axs[1], "Final State")
 
 # output image
 savefig(f"./out/10.png", bbox_inches='tight')
