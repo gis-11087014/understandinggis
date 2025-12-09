@@ -8,15 +8,42 @@
 #this creates a class
 class Schelling:
     
-    def __init__(self, width, height, empty_ration, similarity_threshold, n_iterations): 
+    """
+    Constructor for Schelling Class.
+    Stores the Parameter. 
+    
+    * This function is called a constructor. It is called automatically 
+    * when an instance of the class is created, and is used to handle 
+    * the setup of an instance of this class (i.e. 'construct' it)
+    """
+    
+    def __init__(self, width, height, empty_ration, similarity_threshold, n_iterations, agents): 
+        #storing each argument except self in instance variable with the same name
         self.width = width
         self.height = height
         self.empty_ration = empty_ration
         self.similarity_threshold = similarity_threshold
         self.n_iterations = n_iterations
-        #storing each argument except self in instance variable with the same name
+        self.agents = ({})
+
+        # get all house addresses
+        all_houses = [(x, y) for x in range(self.width) for y in range(self.height)]
         
-schelling = Schelling(25, 25, 0.25, 0.6, 500)
-print (schelling.width)
+        print (all_houses)
+    
+#an instance of Schelling
+schelling = Schelling(25, 25, 0.25, 0.6, 500, ({}))
+
+
+
+
+#PART 2
+
+#an AMB is made up of a class for the model and a class for the agents 
+
+#building up our class...
+
+
+
 
     
